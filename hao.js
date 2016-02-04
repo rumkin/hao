@@ -44,6 +44,7 @@ commander
       location => location
     );
     var app = yield hao.inspect(location);
+
     yield hao.installApp(alias||app.pack.name, app, options.global);
 
     hao.on('error', (error) => {

@@ -160,8 +160,8 @@ HaoLinux.prototype.installApp = function * (name, app, isGlobal) {
     }
   }
 
-  fs.linkSync(
-    path.join(app.location, app.bin),
+  fs.symlinkSync(
+    path.join(dir, app.bin),
     path.join(baseDir, 'bin', name)
   );
 
