@@ -8,7 +8,7 @@ var co = require('co');
 function initHao(config) {
   var hao = new HaoApp({
     dir: config.dir,
-    debug: true,
+    debug: config.debug,
     modules: {
       platform: require(`./src/platform.js`)
     }
@@ -21,7 +21,8 @@ function initHao(config) {
 commander
 .command('install <provider> <name> [name]')
 .option('-c,--config <path>', 'Path to config file')
-.option('-g,--global', 'Global application', Boolean)
+.option('-g,--global', 'Global application')
+.option('-d,--debug', 'Debug mode on/off')
 .action(function (provider, name, alias, options) {
   if (! name) {
     return 1;
@@ -33,6 +34,8 @@ commander
   } else {
     config = {};
   }
+
+  config.debug = options.debug;
 
   co(function*(){
     var hao = initHao(config);
@@ -46,10 +49,6 @@ commander
     var app = yield hao.inspect(location);
 
     yield hao.installApp(alias||app.pack.name, app, options.global);
-
-    hao.on('error', (error) => {
-      console.error(error.stack);
-    });
   })
   .catch(error => {
     console.error('' + error);
@@ -63,7 +62,8 @@ commander
 commander
 .command('uninstall <target>')
 .option('-c,--config <path>', 'Path to config file', String)
-.option('-g,--global', 'Global application', Boolean)
+.option('-g,--global', 'Global application')
+.option('-d,--debug', 'Debug mode on/off')
 .action(function(name, options){
   if (! name) {
     return 1;
@@ -75,6 +75,8 @@ commander
   } else {
     config = {};
   }
+
+  config.debug = options.debug;
 
   co(function*(){
     var hao = initHao(config);

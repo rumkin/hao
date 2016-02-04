@@ -1,6 +1,7 @@
 'use strict';
 
 var co = require('co');
+var _ = require('underscore');
 var DefaultModule = require('./default.js');
 var path = require('path');
 var childprocess = require('child_process');
@@ -9,6 +10,7 @@ var fetch = require('node-fetch');
 var http = require('http');
 var fs = require('fs');
 var yaml = require('yamljs');
+var chalk = require('chalk');
 
 module.exports = HaoLinux;
 
@@ -36,6 +38,7 @@ HaoLinux.prototype.fetch = function * (provider, name, options) {
     case 'github':
       return yield this.fetchGithub(name, options);
     case 'fs':
+    case 'local':
         return yield this.fetchFs(name, options);
     default:
       throw new Error(`Unknown provider ${provider}`);
@@ -111,7 +114,11 @@ HaoLinux.prototype.fetchFs = function * (location, options) {
     throw new Error('Source should be a directory');
   }
 
-  return location;
+  var dir = this.tmpDir(null, options.tmp);
+
+  this.copy(location, dir);
+
+  return path.join(dir, path.basename(location));
 };
 
 HaoLinux.prototype.installHao = function * (isGlobal) {
@@ -141,6 +148,22 @@ HaoLinux.prototype.installApp = function * (name, app, isGlobal) {
     this.mkdir(dir);
   }
 
+  if (app.pack.beforeInstall) {
+        _.each(app.pack.beforeInstall, cmd => {
+            if (this.hao.debug) {
+                console.log(chalk.grey(cmd));
+            }
+
+            var result = this.run(cmd, {
+                cwd: app.location
+            });
+
+            if (result.status) {
+                throw new Error(`beforeInstall script failed`);
+            }
+        });
+  }
+
   dir = path.join(dir, name);
 
 
@@ -160,10 +183,29 @@ HaoLinux.prototype.installApp = function * (name, app, isGlobal) {
     }
   }
 
+
   fs.symlinkSync(
     path.join(dir, app.bin),
     path.join(baseDir, 'bin', name)
   );
+
+
+  if (app.pack.afterInstall) {
+        _.each(app.pack.afterInstall, cmd => {
+
+            if (this.hao.debug) {
+                console.log(chalk.grey(cmd));
+            }
+
+            var result = this.run(cmd, {
+                cwd: dir
+            });
+
+            if (result.status) {
+                throw new Error(`beforeInstall script failed`);
+            }
+        });
+  }
 
   return dir;
 };
@@ -177,6 +219,24 @@ HaoLinux.prototype.uninstallApp = function * (name, app, isGlobal) {
   }
 
   var base = this.getBaseDir(isGlobal);
+  var appDir = this.getAppDir(name, isGlobal);
+
+  if (app.pack.beforeUninstall) {
+        _.each(app.pack.beforeUninstall, cmd => {
+            if (this.hao.debug) {
+                console.log(chalk.grey(cmd));
+            }
+
+            var result = this.run(cmd, {
+                cwd: appDir
+            });
+
+            if (result.status) {
+                throw new Error(`beforeUninstall script failed`);
+            }
+        });
+  }
+
   var linkPath = path.join(base, 'bin', name);
   if (fs.existsSync(linkPath)) {
     fs.unlinkSync(linkPath);
@@ -187,6 +247,22 @@ HaoLinux.prototype.uninstallApp = function * (name, app, isGlobal) {
 
   if (cmd.status) {
     throw new Error('Not removed');
+  }
+
+  if (app.pack.afterUninstall) {
+        _.each(app.pack.afterUninstall, cmd => {
+            if (this.hao.debug) {
+                console.log(chalk.grey(cmd));
+            }
+
+            var result = this.run(cmd, {
+                cwd: appDir
+            });
+
+            if (result.status) {
+                throw new Error(`beforeUninstall script failed`);
+            }
+        });
   }
 };
 
@@ -288,14 +364,22 @@ HaoLinux.prototype.cmd = function (cmd, args, options) {
   return childprocess.spawnSync(...arguments);
 };
 
-HaoLinux.prototype.exec = function (cmd, args, options) {
+HaoLinux.prototype.exec = function (cmd, options) {
   options = options || {};
 
   options.stdio = this.hao.debug
     ? 'inherit'
     : 'ignore';
 
-  return childprocess.execSync(...arguments);
+  return this.cmd('/bin/sh', ['-c', cmd], options);
+};
+
+HaoLinux.prototype.run = function (cmd, options) {
+    if (_.isObject(cmd)) {
+        return this.cmd(cmd[0], cmd.slice(1), options);
+    } else {
+        return this.exec(cmd, options);
+    }
 };
 
 HaoLinux.prototype.getDir = function (isGlobal) {

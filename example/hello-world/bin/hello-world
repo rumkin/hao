@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-console.log('Hello world');
+var chalk = require('chalk');
+console.log('Hello', chalk.green('world'));

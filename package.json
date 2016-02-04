@@ -1,6 +1,6 @@
 {
   "name": "hao",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Node application manager",
   "repository": "rumkin/hao",
   "keywords": [
@@ -12,10 +12,12 @@
     "manage"
   ],
   "dependencies": {
+    "chalk": "^1.1.1",
     "co": "^4.6.0",
     "commander": "^2.9.0",
     "node-fetch": "^1.3.3",
     "pify": "^2.3.0",
+    "underscore": "^1.8.3",
     "yamljs": "^0.2.4"
   },
   "bin": "hao.js",
