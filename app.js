@@ -15,7 +15,7 @@ function HaoApp(options_) {
   this.debug = options.debug;
 
   this.dir = options.dir || 'apps';
-  this.rcfile = options.rcfile || '.haorc';
+  this.rcfile = options.rcfile || '.app';
 
   // Hao Application modules
   this.modules = options.modules || {};

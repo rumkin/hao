@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var commander = require('commander');
 var HaoApp = require('./app.js');
 var co = require('co');
