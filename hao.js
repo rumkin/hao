@@ -43,7 +43,7 @@ commander
       console.error(error.stack);
     });
 
-    var location = yield hao.fetch(provider, name, {tmp: 'tmp'}).then(
+    var location = yield hao.fetch(provider, name, {tmp: '/tmp'}).then(
       location => location
     );
     var app = yield hao.inspect(location);

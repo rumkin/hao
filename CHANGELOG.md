@@ -1,9 +1,11 @@
-# v0.2.4
+# v0.2.6
 
-* Rename `.hao` into `.app`
-* Add executable comment to `hao.js`
+* Rename `.hao` into `.app`.
+* Add executable comment to `hao.js`.
 * Fix installation issue with missed links.
 * Rename `fs` provider into `local`.
-* Make local installer copy data to tmp folder
+* Make local installer copy data to tmp folder.
 * Add `beforeInstall`, `afterInstall`, `beforeUninstall` and `afterUninstall`
   callbacks.
+* Fix temporary folder location.
+* Enhance copy error message.

@@ -327,9 +327,9 @@ HaoLinux.prototype.inspectApp = function * (location) {
  */
 HaoLinux.prototype.copy = function (source, dest) {
   var cmd = this.cmd('cp', ['-r', source, dest]);
-
+  
   if (cmd.status) {
-    throw new Error('Could not move files');
+    throw new Error('Could not move files:' + cmd.output);
   }
 };
 
