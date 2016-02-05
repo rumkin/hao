@@ -102,4 +102,12 @@ commander
   });
 });
 
+commander
+.command('version')
+.description('Output current hao version')
+.action(function(){
+    var pack = require('./package.json');
+    console.log(pack.version);
+});
+
 commander.parse(process.argv);

@@ -1,4 +1,4 @@
-# v0.2.6
+# v0.2.7
 
 * Rename `.hao` into `.app`.
 * Add executable comment to `hao.js`.
@@ -9,3 +9,4 @@
   callbacks.
 * Fix temporary folder location.
 * Enhance copy error message.
+* Add `version` command line action.
