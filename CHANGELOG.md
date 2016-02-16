@@ -1,4 +1,10 @@
-# v0.2.7
+# Changelog
+
+### v0.2.9
+* Add `list` command.
+* refactor code to use `const` for dependencies instead of `var`.
+
+### v0.2.7
 
 * Rename `.hao` into `.app`.
 * Add executable comment to `hao.js`.

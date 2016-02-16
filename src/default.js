@@ -1,6 +1,6 @@
 'use strict';
 
-var co = require('co');
+const co = require('co');
 
 module.exports = DefaultModule;
 
@@ -14,7 +14,7 @@ DefaultModule.prototype.def = function (name, fn) {
   } else {
     fn = fn.bind(this);
   }
-  
+
   this.hao.method(name, fn);
 };
 

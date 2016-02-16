@@ -1,12 +1,11 @@
 'use strict';
 
-var format = require('util').format;
-var co = require('co');
-var Stream = require('stream');
+const format = require('util').format;
+const co = require('co');
+const Stream = require('stream');
+const EventEmitter = require('events').EventEmitter;
 
 module.exports = HaoApp;
-
-var EventEmitter = require('events').EventEmitter;
 
 function HaoApp(options_) {
   EventEmitter.call(this);

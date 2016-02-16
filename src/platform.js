@@ -1,5 +1,5 @@
 // TODO Create platfrom selector
-var platform = process.platform;
+const platform = process.platform;
 
 if (platform !== 'linux') {
   throw new Error(`Platform ${platform} is not supported yet`);

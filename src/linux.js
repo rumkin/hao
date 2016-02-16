@@ -1,16 +1,17 @@
 'use strict';
 
-var co = require('co');
-var _ = require('underscore');
-var DefaultModule = require('./default.js');
-var path = require('path');
-var childprocess = require('child_process');
-var crypto = require('crypto');
-var fetch = require('node-fetch');
-var http = require('http');
-var fs = require('fs');
-var yaml = require('yamljs');
-var chalk = require('chalk');
+const co = require('co');
+const _ = require('underscore');
+const DefaultModule = require('./default.js');
+const path = require('path');
+const childprocess = require('child_process');
+const crypto = require('crypto');
+const fetch = require('node-fetch');
+const http = require('http');
+const fs = require('fs');
+const yaml = require('yamljs');
+const chalk = require('chalk');
+const pify = require('pify');
 
 module.exports = HaoLinux;
 
@@ -27,6 +28,7 @@ function HaoLinux(hao, options_) {
   this.def('uninstallApp', this.uninstallApp);
   this.def('getAppDir', this.getAppDir);
   this.def('fetch', this.fetch);
+  this.def('listApps', this.listApps);
 }
 
 Object.setPrototypeOf(HaoLinux.prototype, DefaultModule.prototype);
@@ -316,6 +318,25 @@ HaoLinux.prototype.inspectApp = function * (location) {
   };
 };
 
+HaoLinux.prototype.listApps = function * (isGlobal) {
+    var dir = this.getDir(isGlobal);
+
+    var files = yield pify(fs.readdir)(dir);
+
+    var list = (yield files.map(file => {
+        var location = path.join(dir, file);
+
+        return pify(fs.stat)(path.join(location, this.hao.rcfile))
+        .then(stat => {
+            if (stat.isFile()) {
+                return location;
+            }
+        });
+    })).filter(item => !! item);
+
+    return yield list.map(location => this.inspectApp(location));
+};
+
 // Utils -----------------------------------------------------------------------
 
 /**
@@ -327,7 +348,7 @@ HaoLinux.prototype.inspectApp = function * (location) {
  */
 HaoLinux.prototype.copy = function (source, dest) {
   var cmd = this.cmd('cp', ['-r', source, dest]);
-  
+
   if (cmd.status) {
     throw new Error('Could not move files:' + cmd.output);
   }
